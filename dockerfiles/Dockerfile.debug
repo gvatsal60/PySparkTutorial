@@ -1,0 +1,38 @@
+FROM mcr.microsoft.com/devcontainers/python:3.10 AS base
+
+# Metadata indicating the maintainer of this Dockerfile
+LABEL MAINTAINER="gvatsal60"
+# Description of the purpose of this image
+LABEL DESCRIPTION="Build Environment"
+
+ARG USERNAME=vscode
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV SPARK_HOME=/spark
+
+# Install dependencies
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends \
+    openjdk-17-jre \
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Spark
+ARG SPARK_VERSION=3.5.5
+ARG SPARK_TAR_NAME=/tmp/spark.tgz
+
+ADD https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz ${SPARK_TAR_NAME}
+RUN tar -xzf ${SPARK_TAR_NAME} -C /tmp && \
+    mv /tmp/spark-${SPARK_VERSION}-bin-hadoop3 ${SPARK_HOME} && \
+    rm -rf /tmp/*
+
+# Install Python packages
+RUN python3 -m pip install --upgrade --no-cache-dir \
+    ipykernel \
+    pip \
+    pyspark==${SPARK_VERSION}
+
+# Switch to non-root user
+USER ${USERNAME}
