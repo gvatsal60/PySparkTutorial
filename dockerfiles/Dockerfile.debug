@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/python:3.12 AS base
+FROM mcr.microsoft.com/devcontainers/python:3.14 AS base
 
 # Metadata indicating the maintainer of this Dockerfile
 LABEL MAINTAINER="gvatsal60"
@@ -6,19 +6,19 @@ LABEL MAINTAINER="gvatsal60"
 LABEL DESCRIPTION="Build Environment"
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ENV SPARK_HOME=/spark
 
 # Install dependencies
 RUN apt-get update \
     && apt-get -y install --no-install-recommends \
-    openjdk-17-jre \
+    openjdk-21-jre-headless \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Spark
-ARG SPARK_VERSION=3.5.5
+ARG SPARK_VERSION=4.1.1
 ARG SPARK_TAR_NAME=/tmp/spark.tgz
 
 ADD https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz ${SPARK_TAR_NAME}
